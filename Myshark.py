@@ -2,7 +2,22 @@ import pyshark
 import subprocess
 import shutil
 import pyfiglet
-import threading
+import threading  
+import MysharkAi
+import joblib
+
+shark_wifi_ascii = r"""
+(..       \_    ,  |\  /|
+ \       O  \  /|  \ \/ /
+  \______    \/ |   \  / 
+     vvvv\    \ |   /  |
+     \^^^^  ==   \_/   |
+      `\_   ===    \.  |
+      / /\_   \ /      |
+      |/   \_  \|      /
+ snd         \________/
+"""
+
 def start_capture(interface):
     global capture_process
     tshark_path = r"C:\Program Files\Wireshark\tshark.exe"
@@ -65,31 +80,36 @@ def load_capture():
 
     shutil.copy("saved_capture.pcap", "capture.pcap")
     print("Capture loaded from 'saved_capture.pcap'.")
-shark_wifi_ascii = r"""
-(..       \_    ,  |\  /|
- \       O  \  /|  \ \/ /
-  \______    \/ |   \  / 
-     vvvv\    \ |   /  |
-     \^^^^  ==   \_/   |
-      `\_   ===    \.  |
-      / /\_   \ /      |
-      |/   \_  \|      /
- snd         \________/
-"""
 
 codesnail_ascii = pyfiglet.figlet_format("MyShark")
 
 print(codesnail_ascii)
-print("Welcome to the MyShark Wireshark Companion!")
+print("Welcome to the MyShark Wireshark tool!")
 
 capture_process = None
 
-# Define a function for packet capture in the background
 def capture_thread(interface):
     start_capture(interface)
-    capture_process.wait()  # Wait for the capture process to complete
+    capture_process.wait()  
 
-# Start packet capture in a separate thread
+
+def load_trained_model(MysharkAi):
+    try:
+        loaded_model = joblib.load(MysharkAi)
+        return loaded_model
+    except Exception as e:
+        print(f"Error loading the trained model: {str(e)}")
+        return None
+
+MysharkAi = "MysharkAi.joblib"
+
+loaded_model = load_trained_model(MysharkAi)
+
+if loaded_model is not None:
+    print("Trained model loaded successfully.")
+else:
+    print("Failed to load the trained model.")
+
 capture_thread_instance = None
 
 try:
@@ -109,7 +129,6 @@ try:
                 print("Capture is already running. Use option 2 to stop.")
             else:
                 interface = input("Enter the capture interface (e.g., eth0): ")
-                # Start packet capture in a separate thread
                 capture_thread_instance = threading.Thread(target=capture_thread, args=(interface,))
                 capture_thread_instance.start()
         elif choice == "2":
@@ -130,7 +149,5 @@ try:
 
 except KeyboardInterrupt:
     if capture_thread_instance and capture_thread_instance.is_alive():
-        # Stop the packet capture thread if it's still running
         capture_thread_instance.join()
     print("\nKeyboard interrupt detected. Exiting...")
-

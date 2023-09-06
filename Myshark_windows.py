@@ -67,14 +67,15 @@ def analyze_packets():
         src_ip = packet.ip.src
         dst_ip = packet.ip.dst
 
-        src_port = packet[packet.transport_layer].srcport
-        dst_port = packet[packet.transport_layer].dstport
+        if hasattr(packet, "transport_layer"):
+            src_port = packet[packet.transport_layer].srcport
+            dst_port = packet[packet.transport_layer].dstport
 
-        devices[src_ip] = devices.get(src_ip, 0) + 1
-        devices[dst_ip] = devices.get(dst_ip, 0) + 1
+            devices[src_ip] = devices.get(src_ip, 0) + 1
+            devices[dst_ip] = devices.get(dst_ip, 0) + 1
 
-        ports[src_port] = ports.get(src_port, 0) + 1
-        ports[dst_port] = ports.get(dst_port, 0) + 1
+            ports[src_port] = ports.get(src_port, 0) + 1
+            ports[dst_port] = ports.get(dst_port, 0) + 1
 
     print(f"Total packets captured: {packet_count}")
     print("Device Information:")

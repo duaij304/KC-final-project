@@ -157,6 +157,7 @@ class PacketAnalyzer:
         result_text += f"Unique Hosts: {', '.join(unique_hosts)}\n"
 
         self.display_analysis_result(result_text)
+                # After the analysis is complete, call the network topology building method
         
 
 
@@ -169,7 +170,7 @@ class PacketAnalyzer:
     def analyze_dns_packets(self, source_devices, destination_devices, source_ports, result_text):
         dns_requests = 0
         dns_responses = 0
-        domains = set() 
+        domains = set()  # To store unique domains and subdomains
 
         for device, count in source_devices.items():
             if "DNS" in device:
@@ -236,7 +237,7 @@ def main():
     interface_label = customtkinter.CTkLabel(frame, text="Select Interface:")
     interface_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-    available_interfaces = analyzer.get_available_interfaces() 
+    available_interfaces = analyzer.get_available_interfaces()  # Use the instance to access the method
     interface_combobox = customtkinter.CTkComboBox(frame, values=available_interfaces, state="readonly")
     interface_combobox.grid(row=0, column=1, padx=5, pady=5)
     interface_combobox.set(available_interfaces[0])
@@ -260,7 +261,7 @@ def main():
     analyze_packets_button = customtkinter.CTkButton(
     frame,
     text="Analyze Captured Packets",
-    command=lambda: analyzer.analyze_packets("HTTP")  
+    command=lambda: analyzer.analyze_packets("HTTP")  # Modify this with the appropriate analysis type
     )
     analyze_packets_button.grid(row=4, column=0, columnspan=2, padx=5, pady=10, sticky="we")
 

@@ -1,34 +1,19 @@
 
-ملاحظة: يجب تعبئة هذا الملف بمعلومات المشروع، يمكنك اختيار اللغة. تأكد من مسح اللغة الأخرى والتعليقات الجانبية 
-> ⬇️ تعبئة معلومات المشروع بالعربية  
-
-<div dir="rtl">
-  
-### اسم الطالب
-
-
-### اسم المشروع
-
-
-# شرح الفكرة
-المشكلة والحلول المطروحة إن وجدت
-
-
-# الأعمال المستقبلية
-
 
 </div>
 
 > Fill out project information in English ⬇️
 ### Student Name
-
+Duaij Almutairi
 
 ### Project Name
 
 # Idea
-Problem and solutions if found 
+Problem: Simplify network packet capture and analysis.
+Solution: Create a user-friendly tool for capturing and analyzing network packets.
 
 
 # Future Work 
-
-
+Enhance packet analysis capabilities.
+Improve user interface and features.
+add a Ml model to detect anomaly

@@ -8,6 +8,11 @@ import psutil
 import customtkinter
 import sys
 from tkinter import scrolledtext
+import matplotlib.pyplot as plt
+import io
+import base64
+import subprocess 
+from customtkinter import CTkProgressBar
 
 class PacketAnalyzer:
     def __init__(self):
@@ -71,7 +76,7 @@ class PacketAnalyzer:
 
 
     def analyze_packets(self, analysis_type):
-        self.captured_packets = []  
+        self.captured_packets = []
         packet_count = 0
         source_devices = {}
         destination_devices = {}
@@ -126,9 +131,16 @@ class PacketAnalyzer:
         elif analysis_type == "DNS":
             self.analyze_dns_packets(source_devices, destination_devices, source_ports, result_text)
 
-
-
-
+    def create_and_save_pie_chart(self, data, title):
+        plt.figure(figsize=(6, 6))
+        labels = data.keys()
+        sizes = data.values()
+        plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+        plt.title(title)
+        chart_image_buffer = io.BytesIO()
+        plt.savefig(chart_image_buffer, format='png')
+        chart_image_buffer.seek(0)
+        plt.show()
 
     def analyze_http_packets(self, source_devices, destination_devices, source_ports, result_text):
         http_requests = 0
@@ -151,10 +163,22 @@ class PacketAnalyzer:
             if port == "80" or port == "443":
                 http_responses += count
 
+        source_devices_chart = self.create_and_save_pie_chart(source_devices, "Source Devices")
+        source_ports_chart = self.create_and_save_pie_chart(source_ports, "Source Ports")
+
+        source_devices_image = base64.b64encode(source_devices_chart.read()).decode()
+        source_ports_image = base64.b64encode(source_ports_chart.read()).decode()
+
         result_text += f"\n\nHTTP Packet Analysis:\n"
         result_text += f"Total HTTP Requests: {http_requests}\n"
         result_text += f"Total HTTP Responses: {http_responses}\n"
         result_text += f"Unique Hosts: {', '.join(unique_hosts)}\n"
+
+        result_text += "\nSource Devices Pie Chart:\n"
+        result_text += f'<img src="data:image/png;base64,{source_devices_image}" />\n'
+
+        result_text += "\nSource Ports Pie Chart:\n"
+        result_text += f'<img src="data:image/png;base64,{source_ports_image}" />\n'
 
         self.display_analysis_result(result_text)
         
@@ -211,14 +235,18 @@ class PacketAnalyzer:
         self.result_text_widget = scrolledtext.ScrolledText(result_window, wrap=tk.WORD)
         self.result_text_widget.pack(expand=True, fill='both')
 
-        self.result_text_widget.insert(tk.END, result_text)
+        self.result_text_widget.config(state=tk.NORMAL) 
+
+        self.result_text_widget.insert(tk.END, result_text, 'html_content')
+
+        self.result_text_widget.tag_configure('html_content', justify='left', spacing1=5, spacing2=5)
+
+        self.result_text_widget.config(state=tk.DISABLED)
 
         scrollbar = tk.Scrollbar(self.result_text_widget, command=self.result_text_widget.yview)
         scrollbar.pack(side=tk.RIGHT, fill='y')
 
         self.result_text_widget.config(yscrollcommand=scrollbar.set)
-
-        self.result_text_widget.config(state=tk.DISABLED)
 
 
 def main():
@@ -233,9 +261,13 @@ def main():
     def get_selected_interface():
         return interface_combobox.get()
 
+              
     interface_label = customtkinter.CTkLabel(frame, text="Select Interface:")
     interface_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
+
+
+    
     available_interfaces = analyzer.get_available_interfaces() 
     interface_combobox = customtkinter.CTkComboBox(frame, values=available_interfaces, state="readonly")
     interface_combobox.grid(row=0, column=1, padx=5, pady=5)
@@ -268,6 +300,8 @@ def main():
 
     quit_button = customtkinter.CTkButton(frame, text="Quit", command=root.quit)
     quit_button.grid(row=8, column=0, columnspan=2, padx=5, pady=10, sticky="we")
+
+  
 
     root.mainloop()
 
